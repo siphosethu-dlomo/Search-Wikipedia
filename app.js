@@ -11,38 +11,41 @@ let resultsDOM =  document.getElementById('results');
 let searchTerm = '';
 let searchQuery = '';
 
+export function searchEvent() {
+  searchForm.addEventListener('submit', e => {
+    e.preventDefault();
+    // get the search term
+    searchTerm = searchInput.value;
+    searchQuery = `&srsearch=${searchTerm}`;
+    if(searchTerm === '') {
+      resultsDOM.innerHTML = '<div class="alert alert-danger text-center w-100"> please enter a search term </div>';
+      return;
+    }
+    fetchPages(searchInput);
+  });
+}
 
-searchForm.addEventListener('submit', e => {
-  e.preventDefault();
-  // get the search term
-  searchTerm = searchInput.value;
-  searchQuery = `&srsearch=${searchTerm}`;
-  if(searchTerm === '') {
-    resultsDOM.innerHTML = '<div class="alert alert-danger text-center w-100"> please enter a search term </div>';
-    return;
-  }
-  fetchPages(searchInput);
-});
+searchEvent();
 
 const fetchPages = async () => {
   resultsDOM.innerHTML = '<div class="row w-100 justify-content-center"><div class="loading"></div></div>';
   try {
     const response = await fetch(`${url}${searchQuery}`);
     const data = await response.json();
-    const searchResults = data.query.search;
+    const searchResults = data.query.search; // results array
     if(searchResults.length < 1) {
       resultsDOM.innerHTML = '<div class="alert alert-danger text-center w-100"> no matching results, please try again </div>';
       return;
     }
-    renderResults(searchResults);
+    renderResults(searchResults); // results displaying function 
   } catch (error) {
     resultsDOM.innerHTML = '<div class="alert alert-danger text-center w-100"> please enter a search term </div>';
   }
 };
 
+// display the results
 const renderResults = (list) => {
   const cardList = list.map(item => {
-    console.log(item.pageid);
     return `
       <div class="col">
         <div class="card h-100">
@@ -63,3 +66,5 @@ const renderResults = (list) => {
 
   resultsDOM.innerHTML = cardList;
 };
+
+export { searchEvent };
